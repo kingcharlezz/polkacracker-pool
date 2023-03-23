@@ -85,37 +85,27 @@ encrypted = raw_data[offset + 24:]
 cracked = False
 
 password = fp.readline ()
-password_count = 0
-
+count = 1
 while password:
-  password_count += 1
-  key = scrypt.hash (password.strip (), salt, N = SCRYPT_DEFAULT_N, r = SCRYPT_DEFAULT_R, p = SCRYPT_DEFAULT_P, buflen = 32)
-
-  box = SecretBox (key)
-
-  try:
-    box.decrypt (encrypted, nonce)
-
-    print ("Password found: '%s'" % password.strip ())
-    print ("Number of passwords tried: %d" % password_count)
-
-    cracked = True
-
-    break
-  except:
-    password = fp.readline ()
+    key = scrypt.hash (password.strip (), salt, N = SCRYPT_DEFAULT_N, r = SCRYPT_DEFAULT_R, p = SCRYPT_DEFAULT_P, buflen = 32)
+    box = SecretBox (key)
+    try:
+        box.decrypt (encrypted, nonce)
+        print ("Password found: '%s'" % password.strip ())
+        cracked = True
+        break
+    except:
+        password = fp.readline ()
+        count += 1
+        print("Tried %d passwords" % count, end="\r")
 
 # Cleanup:
-
 fp.close ()
 
-
 # Exit codes:
-
 if cracked:
-  print('cracked');
-  sys.exit (0)
-  
+    print('cracked')
+    sys.exit (0)
 else:
-  print('not cracked');
-  sys.exit (1)
+    print('not cracked')
+    sys.exit (1)
