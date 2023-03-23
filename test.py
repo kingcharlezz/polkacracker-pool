@@ -85,6 +85,7 @@ encrypted = raw_data[offset + 24:]
 cracked = False
 
 password = fp.readline ()
+password_count = 0
 
 while password:
   password_count += 1
