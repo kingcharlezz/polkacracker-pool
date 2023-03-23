@@ -87,6 +87,7 @@ cracked = False
 password = fp.readline ()
 
 while password:
+  password_count += 1
   key = scrypt.hash (password.strip (), salt, N = SCRYPT_DEFAULT_N, r = SCRYPT_DEFAULT_R, p = SCRYPT_DEFAULT_P, buflen = 32)
 
   box = SecretBox (key)
@@ -95,13 +96,13 @@ while password:
     box.decrypt (encrypted, nonce)
 
     print ("Password found: '%s'" % password.strip ())
+    print ("Number of passwords tried: %d" % password_count)
 
     cracked = True
 
     break
   except:
     password = fp.readline ()
-
 
 # Cleanup:
 
