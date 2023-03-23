@@ -13,7 +13,7 @@ from base64 import b64decode
 
 import sys
 import struct
-import scrypt # py-scrypt (or use hashlib.scrypt or passlib.hash.scrypt)
+from py-scrypt import scrypt # py-scrypt (or use hashlib.scrypt or passlib.hash.scrypt)
 
 from nacl.secret import SecretBox # install PyNaCl
 
