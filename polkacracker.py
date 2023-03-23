@@ -30,7 +30,7 @@ SCRYPT_DEFAULT_R =     8
 # Examples
 #
 
-const PAIR = '{"address":"5Dd3gwmR8FuE7JUZXSYUQ4uzzLuCXUHZr1k41cDk5q4f2p7X","encoded":"L//SdVuVLDwr1xTBRdE/36I0uekYanqvVQ/mzBttMh0AgAAAAQAAAAgAAACApnc4Fxc3dxmhdAz2JNwRmNs2wqNvA/KSbfM8Qe16aId2B+Goq1FVscgVSe8FzTu6DONP+el8K8gv4+nx9qxcGBlEoBf2KhUuHo6ZSi7nHNoui5ciT7Yd8WpkIcdwiCeJEcw9huysjfuPVQZXx0KuXODfA3UhW4oICKunifDQ+AkucS0Af+l1kPGpMM5uSZbcx8BYtxe9D9UtzrXL","encoding":{"content":["pkcs8","sr25519"],"type":["scrypt","xsalsa20-poly1305"],"version":"3"},"address":"5Dd3gwmR8FuE7JUZXSYUQ4uzzLuCXUHZr1k41cDk5q4f2p7X","meta":{"genesisHash":"0xadcb639cec07168f455d8bd3a43badf1114a414836829f5000e8279f70d4c667","isHardware":false,"name":"Wallet 1","tags":[],"whenCreated":1650491676498}}'; 
+# const PAIR = '{"address":"5Dd3gwmR8FuE7JUZXSYUQ4uzzLuCXUHZr1k41cDk5q4f2p7X","encoded":"L//SdVuVLDwr1xTBRdE/36I0uekYanqvVQ/mzBttMh0AgAAAAQAAAAgAAACApnc4Fxc3dxmhdAz2JNwRmNs2wqNvA/KSbfM8Qe16aId2B+Goq1FVscgVSe8FzTu6DONP+el8K8gv4+nx9qxcGBlEoBf2KhUuHo6ZSi7nHNoui5ciT7Yd8WpkIcdwiCeJEcw9huysjfuPVQZXx0KuXODfA3UhW4oICKunifDQ+AkucS0Af+l1kPGpMM5uSZbcx8BYtxe9D9UtzrXL","encoding":{"content":["pkcs8","sr25519"],"type":["scrypt","xsalsa20-poly1305"],"version":"3"},"address":"5Dd3gwmR8FuE7JUZXSYUQ4uzzLuCXUHZr1k41cDk5q4f2p7X","meta":{"genesisHash":"0xadcb639cec07168f455d8bd3a43badf1114a414836829f5000e8279f70d4c667","isHardware":false,"name":"Wallet 1","tags":[],"whenCreated":1650491676498}}'; 
 
 my $ENCODED = "L//SdVuVLDwr1xTBRdE/36I0uekYanqvVQ/mzBttMh0AgAAAAQAAAAgAAACApnc4Fxc3dxmhdAz2JNwRmNs2wqNvA/KSbfM8Qe16aId2B+Goq1FVscgVSe8FzTu6DONP+el8K8gv4+nx9qxcGBlEoBf2KhUuHo6ZSi7nHNoui5ciT7Yd8WpkIcdwiCeJEcw9huysjfuPVQZXx0KuXODfA3UhW4oICKunifDQ+AkucS0Af+l1kPGpMM5uSZbcx8BYtxe9D9UtzrXL";
 #
