@@ -30,7 +30,6 @@ SCRYPT_DEFAULT_R =     8
 # Examples
 #
 
-# const PAIR = '{"address":"5Dd3gwmR8FuE7JUZXSYUQ4uzzLuCXUHZr1k41cDk5q4f2p7X","encoded":"L//SdVuVLDwr1xTBRdE/36I0uekYanqvVQ/mzBttMh0AgAAAAQAAAAgAAACApnc4Fxc3dxmhdAz2JNwRmNs2wqNvA/KSbfM8Qe16aId2B+Goq1FVscgVSe8FzTu6DONP+el8K8gv4+nx9qxcGBlEoBf2KhUuHo6ZSi7nHNoui5ciT7Yd8WpkIcdwiCeJEcw9huysjfuPVQZXx0KuXODfA3UhW4oICKunifDQ+AkucS0Af+l1kPGpMM5uSZbcx8BYtxe9D9UtzrXL","encoding":{"content":["pkcs8","sr25519"],"type":["scrypt","xsalsa20-poly1305"],"version":"3"},"address":"5Dd3gwmR8FuE7JUZXSYUQ4uzzLuCXUHZr1k41cDk5q4f2p7X","meta":{"genesisHash":"0xadcb639cec07168f455d8bd3a43badf1114a414836829f5000e8279f70d4c667","isHardware":false,"name":"Wallet 1","tags":[],"whenCreated":1650491676498}}'; 
 
 ENCODED = "L//SdVuVLDwr1xTBRdE/36I0uekYanqvVQ/mzBttMh0AgAAAAQAAAAgAAACApnc4Fxc3dxmhdAz2JNwRmNs2wqNvA/KSbfM8Qe16aId2B+Goq1FVscgVSe8FzTu6DONP+el8K8gv4+nx9qxcGBlEoBf2KhUuHo6ZSi7nHNoui5ciT7Yd8WpkIcdwiCeJEcw9huysjfuPVQZXx0KuXODfA3UhW4oICKunifDQ+AkucS0Af+l1kPGpMM5uSZbcx8BYtxe9D9UtzrXL";
 #
@@ -80,10 +79,12 @@ nonce     = raw_data[offset +  0:offset + 24]
 encrypted = raw_data[offset + 24:]
 
 cracked = False
+password_count = 0
 
 password = fp.readline ()
 
 while password:
+  password_count += 1
   key = scrypt.hash (password.strip (), salt, N = SCRYPT_DEFAULT_N, r = SCRYPT_DEFAULT_R, p = SCRYPT_DEFAULT_P, buflen = 32)
 
   box = SecretBox (key)
@@ -92,6 +93,7 @@ while password:
     box.decrypt (encrypted, nonce)
 
     print ("Password found: '%s'" % password.strip ())
+    print ("Number of passwords tried: %d" % password_count)
 
     cracked = True
 
@@ -99,18 +101,12 @@ while password:
   except:
     password = fp.readline ()
 
-
 # Cleanup:
-
 fp.close ()
 
-
 # Exit codes:
-
 if cracked:
-  print('cracked');
   sys.exit (0)
-  
 else:
-  print('not cracked');
+  print ("Password not found")
   sys.exit (1)
