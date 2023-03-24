@@ -73,7 +73,7 @@ def main():
 
     cracked = False
 
-    num_processes = 4  # Change this value to modify the number of processes
+    num_processes = 8  # Change this value to modify the number of processes
 
     with ThreadPoolExecutor(max_workers=num_processes) as executor:
         futures = [executor.submit(process_line, line, salt, nonce, encrypted) for line in fp]
