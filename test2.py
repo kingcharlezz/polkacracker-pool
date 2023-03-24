@@ -22,11 +22,11 @@ counter_lock = Lock()
 counter = 0
 
 
-def update_counter():
+def update_counter(offset=0):
     global counter
     with counter_lock:
         counter += 1
-    return counter
+    return counter + offset
 
 
 def try_decrypt(password, salt, nonce, encrypted):
@@ -46,12 +46,11 @@ def try_decrypt(password, salt, nonce, encrypted):
         return None
 
 
-def process_line(line, salt, nonce, encrypted):
+def process_line(line, salt, nonce, encrypted, last_line):
     password = line.strip()
     current_line = update_counter()
     if current_line % 10 == 0:
         print(f"Checking password at line {current_line}", end="\r")
-    print(f"Checking password at line {current_line}", end="\r")
     result = try_decrypt(password, salt, nonce, encrypted)
     if result:
         print(f"Password found: '{result}'")
@@ -106,7 +105,7 @@ def main():
                 chunk = list(islice(lines, chunk_size))
                 if not chunk:
                     break
-                futures.extend(executor.submit(process_line, line, salt, nonce, encrypted) for line in chunk)
+                futures.extend(executor.submit(process_line, line, salt, nonce, encrypted, last_line) for line in chunk)
 
             for future in as_completed(futures):
                 result = future.result()
