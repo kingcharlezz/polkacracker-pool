@@ -27,6 +27,8 @@ SCRYPT_DEFAULT_P = 1
 SCRYPT_DEFAULT_R = 8
 cracked = False
 passwords = fp.readline ()
+fp = None
+
 #
 # Functions
 #
