@@ -76,7 +76,14 @@ def main():
     except:
         print("ERROR: Could not open dictionary file '%s'" % sys.argv[1], file=sys.stderr)
         sys.exit(1)
-
+        
+        
+    temp_fd, temp_path = tempfile.mkstemp()
+    with os.fdopen(temp_fd, 'w', encoding='utf-8') as temp_file:
+        temp_file.write(decoded_contents)
+        
+        
+        
     with open(temp_path, 'r', encoding='utf-8') as fp:
         raw_data = b64decode(ENCODED)
 
