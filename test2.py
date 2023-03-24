@@ -15,6 +15,15 @@ password_found_lock = threading.Lock()
 
 ENCODED = "6YQ09y3SrOBIzgUqvV7N47q/jKHbHa2aKUqQCpq77KIAgAAAAQAAAAgAAABux0VeXlE/TOqqw2izAt7Hy5sh+B99q+BMNHU6NIUCev7mNmwV4wICnz0rEEv2ll4i28mfTlZpbzDlP0KHikztX3WHscVKjAwy88jBZ4FXLWmShPkQkI8Nf2JxToG4OnwwMv24dMKjvaCKN1mglPjmfhkLVwzl+bgeCH2DTaJfW9oDW2sjwFq7IznXcTfk2njIFTUpIrlVboqoaZml"
 
+counter_lock = Lock()
+counter = 0
+
+def update_counter():
+    global counter
+    with counter_lock:
+        counter += 1
+    return counter
+
 def try_decrypt(password, salt, nonce, encrypted):
     global password_found
     with password_found_lock:
@@ -33,6 +42,8 @@ def try_decrypt(password, salt, nonce, encrypted):
 
 def process_line(line, salt, nonce, encrypted):
     password = line.strip()
+    current_line = update_counter()
+    print(f"Checking password at line {current_line}", end="\r")
     result = try_decrypt(password, salt, nonce, encrypted)
     if result:
         print(f"Password found: '{result}'")
