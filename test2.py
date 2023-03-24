@@ -6,6 +6,8 @@ from nacl.secret import SecretBox
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import threading
 from threading import Lock
+from itertools import islice
+import os
 
 SCRYPT_DEFAULT_N = 32768
 SCRYPT_DEFAULT_P = 1
@@ -47,6 +49,8 @@ def try_decrypt(password, salt, nonce, encrypted):
 def process_line(line, salt, nonce, encrypted):
     password = line.strip()
     current_line = update_counter()
+    if current_line % 10 == 0:
+        print(f"Checking password at line {current_line}", end="\r")
     print(f"Checking password at line {current_line}", end="\r")
     result = try_decrypt(password, salt, nonce, encrypted)
     if result:
@@ -79,7 +83,7 @@ def main():
 
     cracked = False
 
-    num_processes = 8  # Change this value to modify the number of processes
+    num_processes = os.cpu_count() or 8 
 
     # Load the last line number from a file, or start at 0 if the file doesn't exist
     try:
@@ -94,7 +98,15 @@ def main():
     # Create a new file to store the line number when the program stops
     with open('last_line.txt', 'w') as f:
         with ThreadPoolExecutor(max_workers=num_processes) as executor:
-            futures = [executor.submit(process_line, line, salt, nonce, encrypted) for line in fp]
+            chunk_size = 1000
+            lines = (line.strip() for line in fp)
+            futures = []
+
+            while not password_found:
+                chunk = list(islice(lines, chunk_size))
+                if not chunk:
+                    break
+                futures.extend(executor.submit(process_line, line, salt, nonce, encrypted) for line in chunk)
 
             for future in as_completed(futures):
                 result = future.result()
