@@ -20,6 +20,7 @@ ENCODED = "T/ej+6KLpBVeFNaTxx6IVjNxKK3ToqJxti7R/vrg02sAgAAAAQAAAAgAAACCiUOMV0Wp7
 
 counter_lock = Lock()
 counter = 0
+last_line = 0
 
 
 def update_counter(offset=0):
@@ -27,6 +28,18 @@ def update_counter(offset=0):
     with counter_lock:
         counter += 1
     return counter + offset
+
+
+def read_last_line():
+    global last_line
+    try:
+        with open('last_line.txt', 'r') as f:
+            last_line = int(f.readline())
+    except:
+        last_line = 0
+
+
+read_last_line()
 
 
 def try_decrypt(password, salt, nonce, encrypted):
@@ -57,6 +70,7 @@ def process_line(line, salt, nonce, encrypted, last_line):
 
 
 def main():
+    global last_line
     if len(sys.argv) < 2:
         print("ERROR: Please specify the dict file within the command line", file=sys.stderr)
         sys.exit(1)
@@ -81,14 +95,7 @@ def main():
 
     cracked = False
 
-    num_processes = os.cpu_count() or 8 
-
-    # Load the last line number from a file, or start at 0 if the file doesn't exist
-    try:
-        with open('last_line.txt', 'r') as f:
-            last_line = int(f.readline())
-    except:
-        last_line = 0
+    num_processes = os.cpu_count() or 8
 
     # Seek to the last line that was successfully processed and start from there
     fp.seek(last_line)
@@ -127,6 +134,7 @@ def main():
     else:
         print('not cracked')
         sys.exit(1)
+
 
 if __name__ == "__main__":
     main()
