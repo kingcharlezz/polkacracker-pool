@@ -26,7 +26,7 @@ SCRYPT_DEFAULT_N = 32768  # 1 << 15 (2^15)
 SCRYPT_DEFAULT_P = 1
 SCRYPT_DEFAULT_R = 8
 
-
+cracked = False
 #
 # Functions
 #
@@ -35,7 +35,7 @@ def crack_password(password):
     global cracked
     global count
 if __name__ == '__main__':
-
+    
     if not cracked:
         key = scrypt.hash(password.strip(), salt, N=SCRYPT_DEFAULT_N, r=SCRYPT_DEFAULT_R, p=SCRYPT_DEFAULT_P, buflen=32)
 
