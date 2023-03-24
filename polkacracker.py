@@ -22,7 +22,7 @@ def try_decrypt(password, salt, nonce, encrypted, index):
         if password_found:
             return None
 
-    print(f"Checking password at line {index}")
+    print(f"Checking password at line {index}", end="\r")
     key = scrypt.hash(password.strip(), salt, N=SCRYPT_DEFAULT_N, r=SCRYPT_DEFAULT_R, p=SCRYPT_DEFAULT_P, buflen=32)
     box = SecretBox(key)
     try:
@@ -39,14 +39,17 @@ def main():
         sys.exit(1)
 
     try:
-        fp = open(sys.argv[1], 'r')
+        with open(sys.argv[1]) as fp:
+            passwords = []
+            for line_number, line in enumerate(fp, start=1):
+                passwords.append((line, line_number))
     except:
         print("ERROR: Could not open dictionary file '%s'" % sys.argv[1], file=sys.stderr)
         sys.exit(1)
 
     raw_data = b64decode(ENCODED)
 
-     salt = raw_data[0:32]
+    salt = raw_data[0:32]
     scrypt_n = struct.unpack("<I", raw_data[32:36])[0]
     scrypt_p = struct.unpack("<I", raw_data[36:40])[0]
     scrypt_r = struct.unpack("<I", raw_data[40:44])[0]
@@ -57,26 +60,17 @@ def main():
 
     cracked = False
 
-    num_processes = 12  # Change this value to modify the number of processes
+    num_processes = 4  # Change this value to modify the number of processes
 
     with ThreadPoolExecutor(max_workers=num_processes) as executor:
-        futures = []
+        futures = [executor.submit(try_decrypt, passwords[i][0], salt, nonce, encrypted, passwords[i][1]) for i in range(len(passwords))]
 
-        for index, password in enumerate(fp):
-            future = executor.submit(try_decrypt, password, salt, nonce, encrypted, index + 1)
-            futures.append(future)
-
-            # Cancel remaining tasks if password is found
-            for future in as_completed(futures):
-                result = future.result()
-                if result:
-                    print("Password found: '%s'" % result)
-                    cracked = True
-                    for future in futures:
-                        future.cancel()
-                    break
-
-    fp.close()
+        for future in as_completed(futures):
+            result = future.result()
+            if result:
+                print("Password found: '%s'" % result)
+                cracked = True
+                break
 
     if cracked:
         print('cracked')
