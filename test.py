@@ -26,8 +26,8 @@ SCRYPT_DEFAULT_N = 32768  # 1 << 15 (2^15)
 SCRYPT_DEFAULT_P = 1
 SCRYPT_DEFAULT_R = 8
 cracked = False
-passwords = fp.readline ()
 fp = None
+passwords = fp.readline ()
 
 #
 # Functions
