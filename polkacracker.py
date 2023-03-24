@@ -49,6 +49,12 @@ def process_line(line, salt, nonce, encrypted):
     if result:
         print(f"Password found: '{result}'")
     return result
+def read_in_chunks(file, block_size=1024):
+    while True:
+        data = file.readlines(block_size)
+        if not data:
+            break
+        yield data
 
 def main():
     if len(sys.argv) < 2:
@@ -76,14 +82,18 @@ def main():
 
     num_processes = 8  # Change this value to modify the number of processes
 
-    with ThreadPoolExecutor(max_workers=num_processes) as executor:
-        futures = [executor.submit(process_line, line, salt, nonce, encrypted) for line in fp]
+    for chunk in read_in_chunks(fp):
+        with ThreadPoolExecutor(max_workers=num_processes) as executor:
+            futures = [executor.submit(process_line, line, salt, nonce, encrypted) for line in chunk]
 
-        for future in as_completed(futures):
-            result = future.result()
-            if result:
-                cracked = True
-                break
+            for future in as_completed(futures):
+                result = future.result()
+                if result:
+                    cracked = True
+                    break
+
+        if cracked:
+            break
 
     fp.close()
 
