@@ -79,45 +79,44 @@ def main():
 
     cracked = False
 
+    num_processes = 8  # Change this value to modify the number of processes
 
-num_processes = 8  # Change this value to modify the number of processes
+    # Load the last line number from a file, or start at 0 if the file doesn't exist
+    try:
+        with open('last_line.txt', 'r') as f:
+            last_line = int(f.readline())
+    except:
+        last_line = 0
 
-# Load the last line number from a file, or start at 0 if the file doesn't exist
-try:
-    with open('last_line.txt', 'r') as f:
-        last_line = int(f.readline())
-except:
-    last_line = 0
+    # Seek to the last line that was successfully processed and start from there
+    fp.seek(last_line)
 
-# Seek to the last line that was successfully processed and start from there
-fp.seek(last_line)
+    # Create a new file to store the line number when the program stops
+    with open('last_line.txt', 'w') as f:
+        with ThreadPoolExecutor(max_workers=num_processes) as executor:
+            futures = [executor.submit(process_line, line, salt, nonce, encrypted) for line in fp]
 
-# Create a new file to store the line number when the program stops
-with open('last_line.txt', 'w') as f:
-    with ThreadPoolExecutor(max_workers=num_processes) as executor:
-        futures = [executor.submit(process_line, line, salt, nonce, encrypted) for line in fp]
+            for future in as_completed(futures):
+                result = future.result()
+                if result:
+                    cracked = True
+                    break
 
-        for future in as_completed(futures):
-            result = future.result()
-            if result:
-                cracked = True
-                break
+                # Save the current line number to the file every 1000 lines
+                if update_counter() % 1000 == 0:
+                    f.write(str(fp.tell()) + '\n')
 
-            # Save the current line number to the file every 1000 lines
-            if update_counter() % 1000 == 0:
-                f.write(str(fp.tell()) + '\n')
+        # Save the final line number to the file
+        f.write(str(fp.tell()) + '\n')
 
-    # Save the final line number to the file
-    f.write(str(fp.tell()) + '\n')
+    fp.close()
 
-fp.close()
+    if cracked:
+        print('cracked')
+        sys.exit(0)
+    else:
+        print('not cracked')
+        sys.exit(1)
 
-if cracked:
-    print('cracked')
-    sys.exit(0)
-else:
-    print('not cracked')
-    sys.exit(1)
-
-if name == "main":
+if __name__ == "__main__":
     main()
