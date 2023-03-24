@@ -1,5 +1,3 @@
-import os 
-import tempfile
 from base64 import b64decode
 import sys
 import struct
@@ -8,8 +6,6 @@ from nacl.secret import SecretBox
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import threading
 from threading import Lock
-
-PROGRESS_FILE = 'progress.txt'
 
 SCRYPT_DEFAULT_N = 32768
 SCRYPT_DEFAULT_P = 1
@@ -27,19 +23,7 @@ def update_counter():
     global counter
     with counter_lock:
         counter += 1
-        with open(PROGRESS_FILE, 'w') as progress_file:
-            progress_file.write(str(counter))
     return counter
-
-def load_progress():
-    if os.path.exists(PROGRESS_FILE):
-        with open(PROGRESS_FILE, 'r') as progress_file:
-            try:
-                return int(progress_file.read().strip())
-            except ValueError:
-                return 0
-    else:
-        return 0
 
 def try_decrypt(password, salt, nonce, encrypted):
     global password_found
@@ -50,10 +34,7 @@ def try_decrypt(password, salt, nonce, encrypted):
     key = scrypt.hash(password.strip(), salt, N=SCRYPT_DEFAULT_N, r=SCRYPT_DEFAULT_R, p=SCRYPT_DEFAULT_P, buflen=32)
     box = SecretBox(key)
     try:
-        box.decrypt(encrypted, nonce)
-        with password_found_lock:
-            password_found = True
-        return password.strip()
+	@@ -33,16 +41,22 @@ def try_decrypt(password, salt, nonce, encrypted, index):
     except:
         return None
 
@@ -72,39 +53,15 @@ def main():
         sys.exit(1)
 
     try:
-        fp = open(sys.argv[1], errors='ignore')
+        fp = open(sys.argv[1])
     except:
         print("ERROR: Could not open dictionary file '%s'" % sys.argv[1], file=sys.stderr)
         sys.exit(1)
-        
-        
-    temp_fd, temp_path = tempfile.mkstemp()
-    with os.fdopen(temp_fd, 'w', encoding='utf-8') as temp_file:
-        temp_file.write(decoded_contents)
-        
-        
-        
-    with open(temp_path, 'r', encoding='utf-8') as fp:
-        raw_data = b64decode(ENCODED)
-
-    salt = raw_data[0:32]
-    scrypt_n = struct.unpack("<I", raw_data[32:36])[0]
-    scrypt_p = struct.unpack("<I", raw_data[36:40])[0]
-    scrypt_r = struct.unpack("<I", raw_data[40:44])[0]
-
-    offset = 32 + (3 * 4)
-    nonce = raw_data[offset:offset + 24]
-    encrypted = raw_data[offset + 24:]
+	
 
     cracked = False
 
     num_processes = 8  # Change this value to modify the number of processes
-    
-    start_line = load_progress()
-    if start_line > 0:
-        print(f"Resuming from line {start_line}")
-        for _ in range(start_line):
-            next(fp)
 
     with ThreadPoolExecutor(max_workers=num_processes) as executor:
         futures = [executor.submit(process_line, line, salt, nonce, encrypted) for line in fp]
@@ -117,14 +74,6 @@ def main():
 
     fp.close()
 
-    os.unlink(temp_path)  # Add this line to remove the temporary file
-    
     if cracked:
         print('cracked')
         sys.exit(0)
-    else:
-        print('not cracked')
-        sys.exit(1)
-
-if __name__ == "__main__":
-    main()
