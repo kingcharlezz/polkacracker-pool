@@ -59,6 +59,7 @@ def main():
         print("ERROR: Please specify the dict file within the command line", file=sys.stderr)
         sys.exit(1)
 
+    fp = None
     try:
         fp = open(sys.argv[1], errors='ignore')
     except:
@@ -78,15 +79,14 @@ def main():
 
     cracked = False
 
-    num_processes = 8  # Change this value to modify the number of processes
+num_processes = 8  # Change this value to modify the number of processes
 
-    # Load the last line number from a file, or start at 0 if the file doesn't exist
-    try:
-        with open('last_line', 'r') as f:
-            last_line = int(f.readline())
-    except:
-        last_line = 0
-
+# Load the last line number from a file, or start at 0 if the file doesn't exist
+try:
+    with open('last_line.txt', 'r') as f:
+        last_line = int(f.readline())
+except:
+    last_line = 0
 
 # Seek to the last line that was successfully processed and start from there
 fp.seek(last_line)
@@ -117,3 +117,6 @@ if cracked:
 else:
     print('not cracked')
     sys.exit(1)
+    
+if name == "main":
+main()
