@@ -57,7 +57,7 @@ def main():
 
     cracked = False
 
-    num_processes = 6  # Change this value to modify the number of processes
+    num_processes = 12  # Change this value to modify the number of processes
 
     with ThreadPoolExecutor(max_workers=num_processes) as executor:
         futures = []
