@@ -1,3 +1,4 @@
+import os
 from base64 import b64decode
 import sys
 import struct
@@ -6,6 +7,16 @@ from nacl.secret import SecretBox
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import threading
 from threading import Lock
+
+def save_checkpoint(line_num):
+    with open("checkpoint.txt", "w") as f:
+        f.write(str(line_num))
+
+def load_checkpoint():
+    if os.path.exists("checkpoint.txt"):
+        with open("checkpoint.txt", "r") as f:
+            return int(f.read().strip())
+    return 0
 
 SCRYPT_DEFAULT_N = 32768
 SCRYPT_DEFAULT_P = 1
@@ -45,10 +56,14 @@ def process_line(line, salt, nonce, encrypted):
     password = line.strip()
     current_line = update_counter()
     print(f"Checking password at line {current_line}", end="\r")
-    result = try_decrypt(password, salt, nonce, encrypted)
-    if result:
-        print(f"Password found: '{result}'")
-    return result
+    try:
+        result = try_decrypt(password, salt, nonce, encrypted)
+        if result:
+            print(f"Password found: '{result}'")
+        return result
+    except Exception as e:
+        save_checkpoint(current_line)
+        print(f"Error at line {current_line}: {e}", file=sys.stderr)
 
 def main():
     if len(sys.argv) < 2:
@@ -56,7 +71,7 @@ def main():
         sys.exit(1)
 
     try:
-        fp = open(sys.argv[1])
+        fp = open(sys.argv[1], errors='ignore')
     except:
         print("ERROR: Could not open dictionary file '%s'" % sys.argv[1], file=sys.stderr)
         sys.exit(1)
@@ -71,6 +86,12 @@ def main():
     offset = 32 + (3 * 4)
     nonce = raw_data[offset:offset + 24]
     encrypted = raw_data[offset + 24:]
+    
+    start_line = load_checkpoint()
+    if start_line > 0:
+        print(f"Resuming from line {start_line}")
+        for _ in range(start_line):
+            next(fp)
 
     cracked = False
 
