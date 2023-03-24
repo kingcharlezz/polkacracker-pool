@@ -79,6 +79,7 @@ def main():
 
     cracked = False
 
+
 num_processes = 8  # Change this value to modify the number of processes
 
 # Load the last line number from a file, or start at 0 if the file doesn't exist
@@ -117,6 +118,6 @@ if cracked:
 else:
     print('not cracked')
     sys.exit(1)
-    
+
 if name == "main":
-main()
+    main()
