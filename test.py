@@ -13,18 +13,18 @@ from base64 import b64decode
 
 import sys
 import struct
-import scrypt # py-scrypt (or use hashlib.scrypt or passlib.hash.scrypt)
+import scrypt  # py-scrypt (or use hashlib.scrypt or passlib.hash.scrypt)
 
-from nacl.secret import SecretBox # install PyNaCl
+from nacl.secret import SecretBox  # install PyNaCl
 import multiprocessing
 
 #
 # Constants
 #
 
-SCRYPT_DEFAULT_N = 32768 # 1 << 15 (2^15)
-SCRYPT_DEFAULT_P =     1
-SCRYPT_DEFAULT_R =     8
+SCRYPT_DEFAULT_N = 32768  # 1 << 15 (2^15)
+SCRYPT_DEFAULT_P = 1
+SCRYPT_DEFAULT_R = 8
 
 
 #
@@ -34,8 +34,8 @@ SCRYPT_DEFAULT_R =     8
 def crack_password(password):
     global cracked
     global count
-    if __name__ == '__main__':
-                
+if __name__ == '__main__':
+
     if not cracked:
         key = scrypt.hash(password.strip(), salt, N=SCRYPT_DEFAULT_N, r=SCRYPT_DEFAULT_R, p=SCRYPT_DEFAULT_P, buflen=32)
 
@@ -49,7 +49,7 @@ def crack_password(password):
 
         except:
             count += 1
-            if count % 100 == 0: # print progress every 100 attempts
+            if count % 100 == 0:  # print progress every 100 attempts
                 print("Tried %d passwords..." % count)
 
 
@@ -95,9 +95,9 @@ if scrypt_r != SCRYPT_DEFAULT_R:
     print("ERROR: Scrypt R value not valid", file=sys.stderr)
     sys.exit(1)
 
-offset = 32 + (3 * 4) # 32 byte salt + 3 numbers (N, p, r)
+offset = 32 + (3 * 4)  # 32 byte salt + 3 numbers (N, p, r)
 
-nonce     = raw_data[offset +  0:offset + 24]
+nonce = raw_data[offset + 0:offset + 24]
 encrypted = raw_data[offset + 24:]
 
 cracked = False
