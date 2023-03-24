@@ -56,7 +56,7 @@ def main():
         sys.exit(1)
 
     try:
-        fp = open(sys.argv[1])
+        fp = open(sys.argv[1], errors='ignore')
     except:
         print("ERROR: Could not open dictionary file '%s'" % sys.argv[1], file=sys.stderr)
         sys.exit(1)
@@ -73,7 +73,7 @@ def main():
     encrypted = raw_data[offset + 24:]
 
     cracked = False
-
+    
     num_processes = 8  # Change this value to modify the number of processes
 
     with ThreadPoolExecutor(max_workers=num_processes) as executor:
