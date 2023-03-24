@@ -94,10 +94,10 @@ def main():
     num_processes = 8  # Change this value to modify the number of processes
     
     start_line = load_progress()
-        if start_line > 0:
-            print(f"Resuming from line {start_line}")
-            for _ in range(start_line):
-                next(fp)
+    if start_line > 0:
+        print(f"Resuming from line {start_line}")
+        for _ in range(start_line):
+            next(fp)
 
     with ThreadPoolExecutor(max_workers=num_processes) as executor:
         futures = [executor.submit(process_line, line, salt, nonce, encrypted) for line in fp]
