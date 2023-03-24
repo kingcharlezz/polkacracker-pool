@@ -79,7 +79,7 @@ def main():
     # Load the last line number from a file, or start at 0 if the file doesn't exist
     try:
         with open('last_line', 'r') as f:
-        last_line = int(f.readline())
+            last_line = int(f.readline())
 except:
     last_line = 0
 
