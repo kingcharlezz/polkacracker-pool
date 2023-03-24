@@ -25,26 +25,26 @@ import multiprocessing
 SCRYPT_DEFAULT_N = 32768  # 1 << 15 (2^15)
 SCRYPT_DEFAULT_P = 1
 SCRYPT_DEFAULT_R = 8
-
+password = fp.readline ()
 cracked = False
 #
 # Functions
 #
 
-def crack_password(password):
+def crack_password(passwords):
     global cracked
     global count
 if __name__ == '__main__':
     
     if not cracked:
-        key = scrypt.hash(password.strip(), salt, N=SCRYPT_DEFAULT_N, r=SCRYPT_DEFAULT_R, p=SCRYPT_DEFAULT_P, buflen=32)
+        key = scrypt.hash(passwords.strip(), salt, N=SCRYPT_DEFAULT_N, r=SCRYPT_DEFAULT_R, p=SCRYPT_DEFAULT_P, buflen=32)
 
         box = SecretBox(key)
 
         try:
             box.decrypt(encrypted, nonce)
 
-            print("Password found: '%s'" % password.strip())
+            print("Password found: '%s'" % passwords.strip())
             cracked = True
 
         except:
@@ -100,7 +100,7 @@ offset = 32 + (3 * 4)  # 32 byte salt + 3 numbers (N, p, r)
 nonce = raw_data[offset + 0:offset + 24]
 encrypted = raw_data[offset + 24:]
 
-cracked = False
+
 count = 0
 
 passwords = fp.readlines()
