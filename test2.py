@@ -4,7 +4,7 @@ import struct
 import scrypt
 from nacl.secret import SecretBox
 from concurrent.futures import ThreadPoolExecutor, as_completed
-import threading
+import threading import Lock
 
 SCRYPT_DEFAULT_N = 32768
 SCRYPT_DEFAULT_P = 1
