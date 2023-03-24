@@ -14,7 +14,7 @@ SCRYPT_DEFAULT_R = 8
 password_found = False
 password_found_lock = threading.Lock()
 
-ENCODED = "6YQ09y3SrOBIzgUqvV7N47q/jKHbHa2aKUqQCpq77KIAgAAAAQAAAAgAAABux0VeXlE/TOqqw2izAt7Hy5sh+B99q+BMNHU6NIUCev7mNmwV4wICnz0rEEv2ll4i28mfTlZpbzDlP0KHikztX3WHscVKjAwy88jBZ4FXLWmShPkQkI8Nf2JxToG4OnwwMv24dMKjvaCKN1mglPjmfhkLVwzl+bgeCH2DTaJfW9oDW2sjwFq7IznXcTfk2njIFTUpIrlVboqoaZml"
+ENCODED = "T/ej+6KLpBVeFNaTxx6IVjNxKK3ToqJxti7R/vrg02sAgAAAAQAAAAgAAACCiUOMV0Wp7JrqGtw+IgebYqOMI8Nc81z97BXeCQ/gcji1YgRZICr6236rMy5OPfa6da/Aq8yR4ef7LJ40CFI4an4bIonqg3a40+KMu9QZ+iHVWf39U/TsI+XubAiLrqRcRIBrAq20CEw4TwRjsLYV41spkKocDB4SscxfpwuopUiKEuQ2+unxabsOC3poe4PH161TitOKiXAlXGrW"
 
 counter_lock = Lock()
 counter = 0
