@@ -27,7 +27,7 @@ SCRYPT_DEFAULT_P = 1
 SCRYPT_DEFAULT_R = 8
 cracked = False
 fp = None
-passwords = fp.readline ()
+
 
 #
 # Functions
@@ -69,7 +69,7 @@ if len(sys.argv) < 2:
     print("ERROR: Please specify the dict file within the command line", file=sys.stderr)
     sys.exit(1)
 
-fp = None
+passwords = fp.readline ()
 
 try:
     fp = open(sys.argv[1])
