@@ -5,6 +5,7 @@ import struct
 import scrypt
 from nacl.secret import SecretBox
 from concurrent.futures import ThreadPoolExecutor, as_completed
+import threading
 
 SCRYPT_DEFAULT_N = 32768
 SCRYPT_DEFAULT_P = 1
@@ -12,12 +13,22 @@ SCRYPT_DEFAULT_R = 8
 
 ENCODED = "6YQ09y3SrOBIzgUqvV7N47q/jKHbHa2aKUqQCpq77KIAgAAAAQAAAAgAAABux0VeXlE/TOqqw2izAt7Hy5sh+B99q+BMNHU6NIUCev7mNmwV4wICnz0rEEv2ll4i28mfTlZpbzDlP0KHikztX3WHscVKjAwy88jBZ4FXLWmShPkQkI8Nf2JxToG4OnwwMv24dMKjvaCKN1mglPjmfhkLVwzl+bgeCH2DTaJfW9oDW2sjwFq7IznXcTfk2njIFTUpIrlVboqoaZml"
 
+password_found = False
+password_found_lock = threading.Lock()
+
 def try_decrypt(password, salt, nonce, encrypted, index):
-    print(f"Checking password at line {index}", end="\r")
+    global password_found
+    with password_found_lock:
+        if password_found:
+            return None
+
+    print(f"Checking password at line {index}")
     key = scrypt.hash(password.strip(), salt, N=SCRYPT_DEFAULT_N, r=SCRYPT_DEFAULT_R, p=SCRYPT_DEFAULT_P, buflen=32)
     box = SecretBox(key)
     try:
         box.decrypt(encrypted, nonce)
+        with password_found_lock:
+            password_found = True
         return password.strip()
     except:
         return None
