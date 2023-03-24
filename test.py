@@ -22,7 +22,7 @@ def try_decrypt(password, salt, nonce, encrypted, index):
         if password_found:
             return None
 
-    print(f"Checking password at line {index}", end="\r\")
+    print(f"Checking password at line {index}", end="\r")
     key = scrypt.hash(password.strip(), salt, N=SCRYPT_DEFAULT_N, r=SCRYPT_DEFAULT_R, p=SCRYPT_DEFAULT_P, buflen=32)
     box = SecretBox(key)
     try:
