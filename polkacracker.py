@@ -16,6 +16,7 @@ import struct
 import scrypt # py-scrypt (or use hashlib.scrypt or passlib.hash.scrypt)
 
 from nacl.secret import SecretBox # install PyNaCl
+import multiprocessing
 
 #
 # Constants
@@ -27,51 +28,71 @@ SCRYPT_DEFAULT_R =     8
 
 
 #
+# Functions
+#
+
+def crack_password(password):
+    global cracked
+    global count
+    
+    if not cracked:
+        key = scrypt.hash(password.strip(), salt, N=SCRYPT_DEFAULT_N, r=SCRYPT_DEFAULT_R, p=SCRYPT_DEFAULT_P, buflen=32)
+
+        box = SecretBox(key)
+
+        try:
+            box.decrypt(encrypted, nonce)
+
+            print("Password found: '%s'" % password.strip())
+            cracked = True
+
+        except:
+            count += 1
+            if count % 100 == 0: # print progress every 100 attempts
+                print("Tried %d passwords..." % count)
+
+
+#
 # Examples
 #
 
+ENCODED = "xxx";
 
-ENCODED = "L//SdVuVLDwr1xTBRdE/36I0uekYanqvVQ/mzBttMh0AgAAAAQAAAAgAAACApnc4Fxc3dxmhdAz2JNwRmNs2wqNvA/KSbfM8Qe16aId2B+Goq1FVscgVSe8FzTu6DONP+el8K8gv4+nx9qxcGBlEoBf2KhUuHo6ZSi7nHNoui5ciT7Yd8WpkIcdwiCeJEcw9huysjfuPVQZXx0KuXODfA3UhW4oICKunifDQ+AkucS0Af+l1kPGpMM5uSZbcx8BYtxe9D9UtzrXL";
 #
 # Start
 #
 
-if len (sys.argv) < 2:
-  print ("ERROR: Please specify the dict file within the command line", file=sys.stderr)
-
-  sys.exit (1)
+if len(sys.argv) < 2:
+    print("ERROR: Please specify the dict file within the command line", file=sys.stderr)
+    sys.exit(1)
 
 fp = None
 
 try:
-  fp = open (sys.argv[1])
+    fp = open(sys.argv[1])
 except:
-  print ("ERROR: Could not open dictionary file '%s'" % sys.argv[1], file=sys.stderr)
+    print("ERROR: Could not open dictionary file '%s'" % sys.argv[1], file=sys.stderr)
+    sys.exit(1)
 
-  sys.exit (1)
-
-raw_data = b64decode (ENCODED)
+raw_data = b64decode(ENCODED)
 
 salt = raw_data[0:32]
 
-scrypt_n = struct.unpack ("<I", raw_data[32:36])[0]
-scrypt_p = struct.unpack ("<I", raw_data[36:40])[0]
-scrypt_r = struct.unpack ("<I", raw_data[40:44])[0]
+scrypt_n = struct.unpack("<I", raw_data[32:36])[0]
+scrypt_p = struct.unpack("<I", raw_data[36:40])[0]
+scrypt_r = struct.unpack("<I", raw_data[40:44])[0]
 
 if scrypt_n != SCRYPT_DEFAULT_N:
-  print ("ERROR: Scrypt N value not valid", file=sys.stderr)
-
-  sys.exit (1)
+    print("ERROR: Scrypt N value not valid", file=sys.stderr)
+    sys.exit(1)
 
 if scrypt_p != SCRYPT_DEFAULT_P:
-  print ("ERROR: Scrypt P value not valid", file=sys.stderr)
-
-  sys.exit (1)
+    print("ERROR: Scrypt P value not valid", file=sys.stderr)
+    sys.exit(1)
 
 if scrypt_r != SCRYPT_DEFAULT_R:
-  print ("ERROR: Scrypt R value not valid", file=sys.stderr)
-
-  sys.exit (1)
+    print("ERROR: Scrypt R value not valid", file=sys.stderr)
+    sys.exit(1)
 
 offset = 32 + (3 * 4) # 32 byte salt + 3 numbers (N, p, r)
 
@@ -79,29 +100,20 @@ nonce     = raw_data[offset +  0:offset + 24]
 encrypted = raw_data[offset + 24:]
 
 cracked = False
+count = 0
 
-password = fp.readline ()
-count = 1
-while password:
-    key = scrypt.hash (password.strip (), salt, N = SCRYPT_DEFAULT_N, r = SCRYPT_DEFAULT_R, p = SCRYPT_DEFAULT_P, buflen = 32)
-    box = SecretBox (key)
-    try:
-        box.decrypt (encrypted, nonce)
-        print ("Password found: '%s'" % password.strip ())
-        cracked = True
-        break
-    except:
-        password = fp.readline ()
-        count += 1
-        print("Tried %d passwords" % count, end="\r")
+passwords = fp.readlines()
+
+with multiprocessing.Pool() as pool:
+    pool.map(crack_password, passwords)
 
 # Cleanup:
-fp.close ()
+fp.close()
 
 # Exit codes:
 if cracked:
     print('cracked')
-    sys.exit (0)
+    sys.exit(0)
 else:
     print('not cracked')
-    sys.exit (1)
+    sys.exit(1)
