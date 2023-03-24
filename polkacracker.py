@@ -34,7 +34,10 @@ def try_decrypt(password, salt, nonce, encrypted):
     key = scrypt.hash(password.strip(), salt, N=SCRYPT_DEFAULT_N, r=SCRYPT_DEFAULT_R, p=SCRYPT_DEFAULT_P, buflen=32)
     box = SecretBox(key)
     try:
-	@@ -33,16 +41,22 @@ def try_decrypt(password, salt, nonce, encrypted, index):
+        box.decrypt(encrypted, nonce)
+        with password_found_lock:
+            password_found = True
+        return password.strip()
     except:
         return None
 
@@ -57,7 +60,17 @@ def main():
     except:
         print("ERROR: Could not open dictionary file '%s'" % sys.argv[1], file=sys.stderr)
         sys.exit(1)
-	
+
+    raw_data = b64decode(ENCODED)
+
+    salt = raw_data[0:32]
+    scrypt_n = struct.unpack("<I", raw_data[32:36])[0]
+    scrypt_p = struct.unpack("<I", raw_data[36:40])[0]
+    scrypt_r = struct.unpack("<I", raw_data[40:44])[0]
+
+    offset = 32 + (3 * 4)
+    nonce = raw_data[offset:offset + 24]
+    encrypted = raw_data[offset + 24:]
 
     cracked = False
 
@@ -77,3 +90,9 @@ def main():
     if cracked:
         print('cracked')
         sys.exit(0)
+    else:
+        print('not cracked')
+        sys.exit(1)
+
+if __name__ == "__main__":
+    main()
