@@ -56,7 +56,7 @@ def main():
         sys.exit(1)
 
     try:
-        fp = open(sys.argv[1], 'r', encoding='utf-8')
+        fp = open(sys.argv[1], 'r', encoding='utf-8',errors='ignore')
     except:
         print("ERROR: Could not open dictionary file '%s'" % sys.argv[1], file=sys.stderr)
         sys.exit(1)
