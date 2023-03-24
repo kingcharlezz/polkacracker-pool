@@ -10,9 +10,10 @@ SCRYPT_DEFAULT_N = 32768
 SCRYPT_DEFAULT_P = 1
 SCRYPT_DEFAULT_R = 8
 
-ENCODED = "L//SdVuVLDwr1xTBRdE/36I0uekYanqvVQ/mzBttMh0AgAAAAQAAAAgAAACApnc4Fxc3dxmhdAz2JNwRmNs2wqNvA/KSbfM8Qe16aId2B+Goq1FVscgVSe8FzTu6DONP+el8K8gv4+nx9qxcGBlEoBf2KhUuHo6ZSi7nHNoui5ciT7Yd8WpkIcdwiCeJEcw9huysjfuPVQZXx0KuXODfA3UhW4oICKunifDQ+AkucS0Af+l1kPGpMM5uSZbcx8BYtxe9D9UtzrXL"
+ENCODED = "6YQ09y3SrOBIzgUqvV7N47q/jKHbHa2aKUqQCpq77KIAgAAAAQAAAAgAAABux0VeXlE/TOqqw2izAt7Hy5sh+B99q+BMNHU6NIUCev7mNmwV4wICnz0rEEv2ll4i28mfTlZpbzDlP0KHikztX3WHscVKjAwy88jBZ4FXLWmShPkQkI8Nf2JxToG4OnwwMv24dMKjvaCKN1mglPjmfhkLVwzl+bgeCH2DTaJfW9oDW2sjwFq7IznXcTfk2njIFTUpIrlVboqoaZml"
 
-def try_decrypt(password, salt, nonce, encrypted):
+def try_decrypt(password, salt, nonce, encrypted, index):
+    print(f"Checking password at line {index}", end="\r")
     key = scrypt.hash(password.strip(), salt, N=SCRYPT_DEFAULT_N, r=SCRYPT_DEFAULT_R, p=SCRYPT_DEFAULT_P, buflen=32)
     box = SecretBox(key)
     try:
@@ -46,8 +47,10 @@ def main():
 
     cracked = False
 
-    with ThreadPoolExecutor() as executor:
-        futures = [executor.submit(try_decrypt, password, salt, nonce, encrypted) for password in passwords]
+    num_processes = 4  # Change this value to modify the number of processes
+
+    with ThreadPoolExecutor(max_workers=num_processes) as executor:
+        futures = [executor.submit(try_decrypt, passwords[i], salt, nonce, encrypted, i+1) for i in range(len(passwords))]
 
         for future in as_completed(futures):
             result = future.result()
