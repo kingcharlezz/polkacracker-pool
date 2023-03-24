@@ -50,7 +50,7 @@ def process_line(line, salt, nonce, encrypted, last_line):
     password = line.strip()
     current_line = update_counter()
     if current_line % 10 == 0:
-        print(f"Checking password at line {current_line}", end="\r")
+        print(f"Checking password at line {last_line}+{current_line}", end="\r")
     result = try_decrypt(password, salt, nonce, encrypted)
     if result:
         print(f"Password found: '{result}'")
